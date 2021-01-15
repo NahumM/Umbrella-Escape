@@ -108,7 +108,6 @@ public class PlayerController : MonoBehaviour
     {
         for (int i = 0; i < this.gameObject.transform.GetChild(0).childCount - 1; i++)
         {
-            Debug.Log(this.gameObject.transform.childCount);
             if (i == skinManagerScript.currentSkinNumber)
                 this.gameObject.transform.GetChild(0).GetChild(i).gameObject.SetActive(true);
             else this.gameObject.transform.GetChild(0).GetChild(i).gameObject.SetActive(false);
