@@ -21,7 +21,8 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
         skinRequirementsText,
         storeUI,
         storeExitButtonUI,
-        menuTitleUI;
+        menuTitleUI,
+        storeMarkUI;
     private bool isGameOver;
 
     void Awake()
@@ -111,6 +112,9 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
         if (skin.isObtained != true) skinPriceText.GetComponent<TextMeshProUGUI>().text = skin.price.ToString();
         else skinPriceText.GetComponent<TextMeshProUGUI>().text = "Purchased";
         skinRequirementsText.GetComponent<TextMeshProUGUI>().text = "Earn " + skin.requiredScore.ToString() + " points in one game";
+        if (gameManagerScript.scoreRecord >= skin.requiredScore)
+            storeMarkUI.SetActive(true);
+        else    storeMarkUI.SetActive(false);
     }
 
     public void CloseSkinStoreUI()
