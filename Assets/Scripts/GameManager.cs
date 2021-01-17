@@ -30,7 +30,6 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        SceneManager.sceneLoaded += CheckSceneForChange;
         adsController = GameObject.FindObjectOfType<AdsController>();
     }
     void Update()
@@ -127,15 +126,6 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene(0);
         }
     }
-
-    private void CheckSceneForChange(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.buildIndex == 0)
-        {
-            NotifyObservers(IGameManagerObserver.ChooseEvent.menuLoaded);
-        }
-    }
-
     private IEnumerator ShowAdWithDelay()
     {
         yield return new WaitForSeconds(1.5f);
