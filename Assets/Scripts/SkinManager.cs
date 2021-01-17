@@ -10,20 +10,17 @@ public class SkinManager : MonoBehaviour
     private List<Skin> skins;
     private UIManager uiManagerScript;
     private GameManager gameManagerScript;
-    private void Awake() => LoadSkinsData();
+    private void Awake()
+    {
+        uiManagerScript = GameObject.FindObjectOfType<UIManager>();
+        gameManagerScript = GameObject.FindObjectOfType<GameManager>();
+        LoadSkinsData();
+    }
     void Start()
     {
         if (skins[currentSkinNumber].isObtained == false)
             currentSkinNumber = 0;
-
-            foreach (Skin skin in skins)
-        {
-            if (skin.id != currentSkinNumber) 
-                skin.skinGameObject.SetActive(false);
-            else skin.skinGameObject.SetActive(true);
-        }
-        uiManagerScript = GameObject.FindObjectOfType<UIManager>();
-        gameManagerScript = GameObject.FindObjectOfType<GameManager>();
+        EquipCurrentClothes();
         previousSkinNumber = currentSkinNumber;
     }
 
@@ -88,6 +85,25 @@ public class SkinManager : MonoBehaviour
         }
     }
 
+    void AssignGameObjects()
+    {
+        Transform character = GameObject.Find("Character_BusinessMan_Shirt_01").transform;
+        foreach (Skin skin in skins)
+        {
+            skin.skinGameObject = character.GetChild(skin.id).gameObject;
+        }
+    }
+
+    void EquipCurrentClothes()
+    {
+        foreach (Skin skin in skins)
+        {
+            if (skin.id != currentSkinNumber)
+                skin.skinGameObject.SetActive(false);
+            else skin.skinGameObject.SetActive(true);
+        }
+    }
+
     private void SaveSkinsData()
     {
         foreach (Skin skin in skins)
@@ -134,7 +150,5 @@ public class SkinManager : MonoBehaviour
     {
         SaveSkinsData();
     }
-
-
 
 }

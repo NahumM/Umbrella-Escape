@@ -102,7 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allowedDistanceFromPlayer: 9
   rotationSpeed: 200
-  speed: 5
+  speed: 3
 --- !u!64 &3630738828409722590
 MeshCollider:
   m_ObjectHideFlags: 0

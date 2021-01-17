@@ -22,7 +22,8 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
         storeUI,
         storeExitButtonUI,
         menuTitleUI,
-        storeMarkUI;
+        storeMarkUI,
+        startButtonUI;
     private bool isGameOver;
 
     void Awake()
@@ -44,7 +45,7 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
     void Update()
     {
         if (!isGameOver)
-        scoreTextUI.GetComponent<TextMeshProUGUI>().text = Mathf.RoundToInt(gameManagerScript.score).ToString();
+            scoreTextUI.GetComponent<TextMeshProUGUI>().text = Mathf.RoundToInt(gameManagerScript.score).ToString();
     }
 
     public void Notify(IGameManagerObserver.ChooseEvent option)
@@ -107,7 +108,12 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
 
     public void UpdateSkinStoreUI(Skin skin)
     {
-        if (skinStoreUI.activeInHierarchy == false) skinStoreUI.SetActive(true);
+        if (storeUI.activeInHierarchy == true) StoreUI();
+        if (skinStoreUI.activeInHierarchy == false)
+        {
+            skinStoreUI.SetActive(true);
+            startButtonUI.SetActive(false);
+        }
         skinNameText.GetComponent<TextMeshProUGUI>().text = skin.name;
         if (skin.isObtained != true) skinPriceText.GetComponent<TextMeshProUGUI>().text = skin.price.ToString();
         else skinPriceText.GetComponent<TextMeshProUGUI>().text = "Purchased";
@@ -120,6 +126,7 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
     public void CloseSkinStoreUI()
     {
         skinStoreUI.SetActive(false);
+        startButtonUI.SetActive(true);
     }
 
     public void DisplayCoinAmounts()
@@ -138,6 +145,7 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
     {
         if (isGameOver == true)
         {
+            if (skinStoreUI.activeInHierarchy == true) CloseSkinStoreUI();
             if (storeUI.activeInHierarchy == false)
             {
                 storeUI.SetActive(true);

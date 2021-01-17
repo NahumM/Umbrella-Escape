@@ -1567,13 +1567,10 @@ MonoBehaviour:
   distanceFromPlayer: 18
   minZSpawn: -32
   maxZSpawn: -27
-  blackCloudsToPool: 1
-  minBlackCloudTimeToSpawn: 2
-  maxBlackCloudTimeToSpawn: 12
-  ufoToPool: 6
-  minUfoTimeToSpawn: 6
-  maxUfoTimeToSpawn: 12
-  coinsToPool: 30
+  minBlackCloudTimeToSpawn: 3
+  maxBlackCloudTimeToSpawn: 6
+  minUfoTimeToSpawn: 5
+  maxUfoTimeToSpawn: 6
   coinSpawnStep: 2
 --- !u!23 &290410771
 MeshRenderer:
@@ -4415,7 +4412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ada3d22f8f5a4fa4897e74998ed42a56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  force: 1
+  force: 5
   umbrellaCopy: {fileID: 0}
   isGameOver: 0
 --- !u!1001 &922650300

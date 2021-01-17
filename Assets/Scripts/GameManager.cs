@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     private float timesDied;
     private bool isGameOver;
     private bool isGameStarted;
+    public int currentSkinNumber;
     [HideInInspector]
     public GameObject umbrella;
     private AdsController adsController;
@@ -29,6 +30,7 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        SceneManager.sceneLoaded += CheckSceneForChange;
         adsController = GameObject.FindObjectOfType<AdsController>();
     }
     void Update()
@@ -123,6 +125,14 @@ public class GameManager : MonoBehaviour
             score = 0;
             isGameStarted = false;
             SceneManager.LoadScene(0);
+        }
+    }
+
+    private void CheckSceneForChange(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == 0)
+        {
+            NotifyObservers(IGameManagerObserver.ChooseEvent.menuLoaded);
         }
     }
 

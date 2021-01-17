@@ -35,10 +35,10 @@ public class PlayerController : MonoBehaviour
     {
         if (!isGameOver)
         {
-            if (Input.GetKey(KeyCode.RightArrow))
-                rb.AddForce(Vector3.forward * force, ForceMode.Acceleration);
-            if (Input.GetKey(KeyCode.LeftArrow))
-                rb.AddForce(Vector3.back * force, ForceMode.Acceleration);
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+                rb.AddForce(Vector3.forward * force, ForceMode.VelocityChange);
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+                rb.AddForce(Vector3.back * force, ForceMode.VelocityChange);
         }
     }
 
@@ -62,8 +62,10 @@ public class PlayerController : MonoBehaviour
                 if (plane.Raycast(ray, out distance))
                     positionToMove = ray.GetPoint(distance);
                 float directionZ = positionToMove.z - transform.position.z;
-                Vector3 direction = new Vector3(0, 0, directionZ);
-                rb.AddForce(direction * force, ForceMode.VelocityChange);
+                Vector3 direction = new Vector3(0, 0, Mathf.Sign(directionZ));
+                Debug.Log("Force added");
+                // rb.AddForce(direction * force, ForceMode.VelocityChange);
+                rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, Mathf.Sign(directionZ) * force);
             }
         }
     }

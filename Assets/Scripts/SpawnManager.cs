@@ -21,21 +21,15 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
     private float maxZSpawn;
     [Header("Black Clouds Settings")]
     [SerializeField]
-    private float blackCloudsToPool;
-    [SerializeField]
     private float minBlackCloudTimeToSpawn;
     [SerializeField]
     private float maxBlackCloudTimeToSpawn;
     [Header("Ufos Settings")]
     [SerializeField]
-    private float ufoToPool;
-    [SerializeField]
     private float minUfoTimeToSpawn;
     [SerializeField]
     private float maxUfoTimeToSpawn;
     [Header("Coins Settings")]
-    [SerializeField]
-    private float coinsToPool;
     [SerializeField]
     private float coinSpawnStep;
 
