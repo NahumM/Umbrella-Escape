@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkinManager : MonoBehaviour
+public class SkinManager : MonoBehaviour, IGameManagerObserver
 {
     public int currentSkinNumber;
     private int previousSkinNumber;
@@ -10,14 +10,12 @@ public class SkinManager : MonoBehaviour
     private List<Skin> skins;
     private UIManager uiManagerScript;
     private GameManager gameManagerScript;
-    private void Awake()
+    void Start()
     {
         uiManagerScript = GameObject.FindObjectOfType<UIManager>();
         gameManagerScript = GameObject.FindObjectOfType<GameManager>();
         LoadSkinsData();
-    }
-    void Start()
-    {
+        gameManagerScript.AddObserver(this);
         if (skins[currentSkinNumber].isObtained == false)
             currentSkinNumber = 0;
         EquipCurrentClothes();
@@ -38,6 +36,11 @@ public class SkinManager : MonoBehaviour
             uiManagerScript.CloseSkinStoreUI();
             isSkinMenuOn = false;
         }
+    }
+    public void Notify(IGameManagerObserver.ChooseEvent option)
+    {
+        if (option == IGameManagerObserver.ChooseEvent.menuLoaded)
+            EquipCurrentClothes();
     }
 
     private void UpdateSkinStoreUI()
@@ -96,10 +99,14 @@ public class SkinManager : MonoBehaviour
 
     void EquipCurrentClothes()
     {
+        if (skins[currentSkinNumber].skinGameObject == null)
+            AssignGameObjects();
         foreach (Skin skin in skins)
         {
             if (skin.id != currentSkinNumber)
+            {
                 skin.skinGameObject.SetActive(false);
+            }
             else skin.skinGameObject.SetActive(true);
         }
     }
@@ -119,9 +126,7 @@ public class SkinManager : MonoBehaviour
     private void LoadSkinsData()
     {
         foreach(Skin skin in skins)
-        {
-            skin.isObtained = intToBool(PlayerPrefs.GetInt("Skin" + skin.id));    
-        }
+            skin.isObtained = intToBool(PlayerPrefs.GetInt("Skin" + skin.id));
         currentSkinNumber = PlayerPrefs.GetInt("CurrentSkin");
 
     }
@@ -141,14 +146,8 @@ public class SkinManager : MonoBehaviour
     private void OnApplicationFocus(bool focus)
     {
         if (focus == false)
-        {
             SaveSkinsData();
-        }
     }
 
-    private void OnApplicationQuit()
-    {
-        SaveSkinsData();
-    }
-
+    private void OnApplicationQuit() => SaveSkinsData();
 }

@@ -20,16 +20,13 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     public GameObject umbrella;
     private AdsController adsController;
-
-    void Awake()
+    void Start()
     {
+        SceneManager.sceneLoaded += CheckForSceneChange;
         int gameManagersCount = FindObjectsOfType<GameManager>().Length;
         if (gameManagersCount != 1) Destroy(this.gameObject);
         else DontDestroyOnLoad(this.gameObject);
         LoadGameData();
-    }
-    void Start()
-    {
         adsController = GameObject.FindObjectOfType<AdsController>();
     }
     void Update()
@@ -105,6 +102,14 @@ public class GameManager : MonoBehaviour
 
     public void ChangeScene() => StartCoroutine("ChangeSceneWithDelay");
     #endregion
+
+    void CheckForSceneChange(Scene scene1, LoadSceneMode mode)
+    {
+        if (scene1.buildIndex == 0)
+        {
+            NotifyObservers(IGameManagerObserver.ChooseEvent.menuLoaded);
+        }
+    }
 
     private IEnumerator ChangeSceneWithDelay()
     {
