@@ -5,40 +5,41 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [HideInInspector]
-    public int coins;
-    [HideInInspector]
-    public float score;
-    [HideInInspector]
-    public int scoreRecord;
-    [SerializeField]
-    private float pointsMultiplier;
-    private float timesDied;
-    private bool isGameOver;
-    private bool isGameStarted;
-    public int currentSkinNumber;
-    [HideInInspector]
-    public GameObject umbrella;
-    private AdsController adsController;
+    private int _coins;
+    private float _score;
+    private int _scoreRecord;
+    [SerializeField] private float _pointsMultiplier;
+    private float _timesDied;
+    private bool _isGameOver;
+    private bool _isGameStarted;
+    private GameObject umbrella;
+    private AdsController _adsController;
+
+    private void Awake()
+    {
+        int gameManagersCount = FindObjectsOfType<GameManager>().Length; 
+        if (gameManagersCount != 1) Destroy(this.gameObject); 
+        else DontDestroyOnLoad(this.gameObject);
+        LoadGameData();
+    }
     void Start()
     {
         SceneManager.sceneLoaded += CheckForSceneChange;
-        int gameManagersCount = FindObjectsOfType<GameManager>().Length;
-        if (gameManagersCount != 1) Destroy(this.gameObject);
-        else DontDestroyOnLoad(this.gameObject);
-        LoadGameData();
-        adsController = GameObject.FindObjectOfType<AdsController>();
+        DontDestroyOnLoad(this.gameObject);
+        _adsController = new AdsController(this);
+
     }
     void Update()
     {
         ScoreCount();
-        if (timesDied >= 2)
-        {
-            timesDied = 0;
-            StartCoroutine("ShowAdWithDelay");
-        }
     }
-
+    #region Get/Set
+    public int GetCoinsAmount() => _coins;
+    public float GetScoreAmount() => _score;
+    public int GetScoreRecord() => _scoreRecord;
+    public bool GetIsGameOver() => _isGameOver;
+    public void AssignUmbrella(GameObject umbrellaObject) => umbrella = umbrellaObject;
+    #endregion
     #region ObserverImplementation
     private List<IGameManagerObserver> gameManagerObservers = new List<IGameManagerObserver>();
     public void AddObserver(IGameManagerObserver observer)
@@ -57,11 +58,10 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
-
     #region GameStates
     public void AddCoins(int amount)
     {
-        coins += amount;
+        _coins += amount;
         NotifyObservers(IGameManagerObserver.ChooseEvent.coinCollection);
     }
     public void Pause()
@@ -73,20 +73,20 @@ public class GameManager : MonoBehaviour
     }
     public void Restart()
     {
-        score = 0;
+        _score = 0;
         SceneManager.LoadScene("MainScene");
-        isGameStarted = true;
-        isGameOver = false;
+        _isGameStarted = true;
+        _isGameOver = false;
         NotifyObservers(IGameManagerObserver.ChooseEvent.gameRestart);
         Time.timeScale = 1f;
     }
 
     public void GameOver()
     {
-        if (score > scoreRecord)
-            scoreRecord = Mathf.RoundToInt(score);
-        isGameOver = true;
-        timesDied++;
+        if (_score > _scoreRecord)
+            _scoreRecord = Mathf.RoundToInt(_score);
+        _isGameOver = true;
+        CheckIfTimeForAdToShow();
         NotifyObservers(IGameManagerObserver.ChooseEvent.death);
     }
 
@@ -96,8 +96,8 @@ public class GameManager : MonoBehaviour
         PlayerController umbrellaScript = umbrella.GetComponent<PlayerController>();
         umbrellaScript.GameContinue();
         NotifyObservers(IGameManagerObserver.ChooseEvent.gameContinue);
-        isGameStarted = true;
-        isGameOver = false;
+        _isGameStarted = true;
+        _isGameOver = false;
     }
 
     public void ChangeScene() => StartCoroutine("ChangeSceneWithDelay");
@@ -111,6 +111,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void CheckIfTimeForAdToShow()
+    {
+        _timesDied++;
+        if (_timesDied >= 2)
+        {
+            _timesDied = 0;
+            StartCoroutine("ShowAdWithDelay");
+        }
+    }
+
     private IEnumerator ChangeSceneWithDelay()
     {
         NotifyObservers(IGameManagerObserver.ChooseEvent.changeScene);
@@ -121,39 +131,38 @@ public class GameManager : MonoBehaviour
             officeAnimator.enabled = true;
             yield return new WaitForSeconds(5);
             SceneManager.LoadScene(1);
-            isGameStarted = true;
+            _isGameStarted = true;
         }
         else
         {
             Pause();
-            score = 0;
-            isGameStarted = false;
+            _score = 0;
+            _isGameStarted = false;
             SceneManager.LoadScene(0);
         }
     }
     private IEnumerator ShowAdWithDelay()
     {
         yield return new WaitForSeconds(1.5f);
-        adsController.ShowInterstitialAd();
+        _adsController.ShowInterstitialAd();
     }
 
     void ScoreCount()
     {
-        if (!isGameOver && isGameStarted)
-            score += Time.deltaTime * pointsMultiplier;
+        if (!_isGameOver && _isGameStarted)
+            _score += Time.deltaTime * _pointsMultiplier;
     }
 
     void LoadGameData()
     {
-        coins = PlayerPrefs.GetInt("Coins");
-        scoreRecord = PlayerPrefs.GetInt("Score Record");
+        _coins = new LoadData().GetInt("Coins");
+        _scoreRecord = new LoadData().GetInt("Score Record");
     }
 
     void SaveGameData()
     {
-        PlayerPrefs.SetInt("Coins", coins);
-        PlayerPrefs.SetInt("Score Record", scoreRecord);
-        PlayerPrefs.Save();
+        new SaveData("Coins", _coins);
+        new SaveData("Score Record", _scoreRecord);
     }
 
     private void OnApplicationFocus(bool focus)

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7114345990796237274}
   m_Layer: 0
   m_Name: Black Cloud
-  m_TagString: Black Cloud
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -109,9 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e84fa63b8536b444897eed6579b8128, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowedDistanceFromPlayer: 9
-  rotationSpeed: 0
-  speed: 0
+  _allowedDistanceFromPlayer: 25
 --- !u!1 &2269136120910097279
 GameObject:
   m_ObjectHideFlags: 0

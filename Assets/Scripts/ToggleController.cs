@@ -4,20 +4,20 @@ using UnityEngine.UI;
 public class ToggleController : MonoBehaviour
 {
     [SerializeField]
-    private GameObject deactiveHandle, activeHandle, deactiveSlider, activeSlider;
-    private Toggle toggle;
-    private bool activationState;
+    private GameObject _deactiveHandle, _activeHandle, _deactiveSlider, _activeSlider;
+    private Toggle _toggle;
+    private bool _activationState;
 
     private void Start()
     {
-        toggle = GetComponent<Toggle>();
+        _toggle = GetComponent<Toggle>();
     }
 
     public void Toggle()
     {
-            deactiveHandle.SetActive(!toggle.isOn);
-            deactiveSlider.SetActive(!toggle.isOn);
-            activeHandle.SetActive(toggle.isOn);
-            activeSlider.SetActive(toggle.isOn);
+            _deactiveHandle.SetActive(!_toggle.isOn);
+            _deactiveSlider.SetActive(!_toggle.isOn);
+            _activeHandle.SetActive(_toggle.isOn);
+            _activeSlider.SetActive(_toggle.isOn);
     }
 }

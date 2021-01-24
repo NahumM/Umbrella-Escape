@@ -1,11 +1,14 @@
-using UnityEngine;
 using EasyMobile;
 
-public class AdsController : MonoBehaviour
+public class AdsController
 {
-    private GameManager gameManagerScript;
-    private void Start() => gameManagerScript = GameObject.FindObjectOfType<GameManager>();
-    private void OnEnable() => Advertising.RewardedAdCompleted += RewardedAdCompletedHandler;
+    private GameManager _gameManagerScript;
+
+    public AdsController(GameManager gameManager)
+    {
+        _gameManagerScript = gameManager;
+        Advertising.RewardedAdCompleted += RewardedAdCompletedHandler;
+    }
     public void ShowRewardedAd() 
     {
         if (Advertising.IsRewardedAdReady())
@@ -16,5 +19,5 @@ public class AdsController : MonoBehaviour
         if (Advertising.IsInterstitialAdReady())
             Advertising.ShowInterstitialAd();
     }
-    void RewardedAdCompletedHandler(RewardedAdNetwork network, AdPlacement location) => gameManagerScript.GameContinue();
+    void RewardedAdCompletedHandler(RewardedAdNetwork network, AdPlacement location) => _gameManagerScript.GameContinue();
 }

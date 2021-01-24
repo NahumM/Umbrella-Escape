@@ -3,39 +3,26 @@ using UnityEngine;
 
 public class InteractiveBehaviour : MonoBehaviour
 {
-    private GameObject umbrella;
-    private GameObject rotator;
-    [SerializeField]
-    private float allowedDistanceFromPlayer;
-    [SerializeField]
-    private float rotationSpeed;
-    [SerializeField]
-    private float speed;
-    void Start()
+    protected GameObject _umbrella;
+    protected GameObject _rotator;
+    [SerializeField] protected float _allowedDistanceFromPlayer;
+    void Update() => DeactivateIfOutOfBound();
+    virtual protected void DeactivateIfOutOfBound()
     {
-        umbrella = GameObject.Find("Umbrella");
-        rotator = GameObject.Find("Coin Rotator");
-    }
-
-    void Update()
-    {
-        if (CompareTag("Ufo") || CompareTag("Coin"))
-        transform.rotation = rotator.transform.rotation;
-        DeactivateIfOutOfBound();
-        if (CompareTag("Ufo"))
-            transform.Translate(Vector3.up * speed * Time.deltaTime);
-    }
-
-    void DeactivateIfOutOfBound()
-    {
-        if (umbrella != null)
-            if (transform.position.y - umbrella.transform.position.y > allowedDistanceFromPlayer)
+        if (_umbrella != null)
+            if (transform.position.y - _umbrella.transform.position.y > _allowedDistanceFromPlayer)
                 this.gameObject.SetActive(false);
     }
 
+    public void AssignGameObjects(GameObject umbrella, GameObject rotator)
+    {
+        _umbrella = umbrella;
+        _rotator = rotator;
+    }
+
     private IEnumerator DeactivateDelay()
-    { 
-        yield return new WaitForSeconds(2);
+    {
+        yield return new WaitForSeconds(1.5f);
         this.gameObject.SetActive(false);
     }
 }

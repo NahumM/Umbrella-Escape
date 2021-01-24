@@ -5,173 +5,177 @@ using EasyMobile;
 
 public class UIManager : MonoBehaviour, IGameManagerObserver
 {
-    private GameManager gameManagerScript;
+    [SerializeField]
+    private GameManager _gameManagerScript;
     [SerializeField]
     private GameObject
-        coinTextUI,
-        scoreTextUI,
-        exitButtonUI,
-        pauseMenuUI,
-        restartMenuUI,
-        settingsMenuUI,
-        mainMenuUI,
-        skinStoreUI,
-        skinNameText,
-        skinPriceText,
-        skinRequirementsText,
-        storeUI,
-        storeExitButtonUI,
-        menuTitleUI,
-        storeMarkUI,
-        startButtonUI;
-    private bool isGameOver;
+        _coinTextUI,
+        _scoreTextUI,
+        _exitButtonUI,
+        _pauseMenuUI,
+        _restartMenuUI,
+        _settingsMenuUI,
+        _mainMenuUI,
+        _skinStoreUI,
+        _skinNameText,
+        _skinPriceText,
+        _skinRequirementsText,
+        _storeUI,
+        _storeExitButtonUI,
+        _menuTitleUI,
+        _storeMarkUI,
+        _startButtonUI;
+    private bool _isGameOver;
 
     void Awake()
     {
         int uiManagersCount = FindObjectsOfType<UIManager>().Length;
-        if (uiManagersCount != 1)
-            Destroy(this.gameObject);
+        if (uiManagersCount != 1) Destroy(this.gameObject);
         else DontDestroyOnLoad(this.gameObject);
     }
     void Start()
     {
-        isGameOver = true;
-        gameManagerScript = FindObjectOfType<GameManager>();
-        if (gameManagerScript != null)
-            gameManagerScript.AddObserver(this);
+        DontDestroyOnLoad(this.gameObject);
+        _isGameOver = true;
+        if (_gameManagerScript != null)
+            _gameManagerScript.AddObserver(this);
         DisplayCoinAmounts();
         ShowRecord();
     }
     void Update()
     {
-        if (!isGameOver)
-            scoreTextUI.GetComponent<TextMeshProUGUI>().text = Mathf.RoundToInt(gameManagerScript.score).ToString();
+        if (!_isGameOver)
+            _scoreTextUI.GetComponent<TextMeshProUGUI>().text = Mathf.RoundToInt(_gameManagerScript.GetScoreAmount()).ToString();
     }
 
     public void Notify(IGameManagerObserver.ChooseEvent option)
     {
-        if (option == IGameManagerObserver.ChooseEvent.coinCollection)
-            DisplayCoinAmounts();
-        if (option == IGameManagerObserver.ChooseEvent.gamePause)
-            PauseMenuUI();
-        if (option == IGameManagerObserver.ChooseEvent.changeScene)
-            MainMenuUI();
-        if (option == IGameManagerObserver.ChooseEvent.death)
+        switch(option)
         {
-            isGameOver = true;
-            StartCoroutine("RestartMenuUI");
-        }
-        if (option == IGameManagerObserver.ChooseEvent.gameRestart)
-        {
-            StartCoroutine("RestartMenuUI");
-            isGameOver = false;
-        }
-        if (option == IGameManagerObserver.ChooseEvent.gameContinue)
-        {
-            isGameOver = false;
-            StartCoroutine("RestartMenuUI");
+            case IGameManagerObserver.ChooseEvent.coinCollection:
+                DisplayCoinAmounts();
+                break;
+            case IGameManagerObserver.ChooseEvent.gamePause:
+                PauseMenuUI();
+                break;
+            case IGameManagerObserver.ChooseEvent.changeScene:
+                MainMenuUI();
+                break;
+            case IGameManagerObserver.ChooseEvent.death:
+                _isGameOver = true;
+                StartCoroutine("RestartMenuUI");
+                break;
+            case IGameManagerObserver.ChooseEvent.gameRestart:
+                StartCoroutine("RestartMenuUI");
+                _isGameOver = false;
+                break;
+            case IGameManagerObserver.ChooseEvent.gameContinue:
+                _isGameOver = false;
+                StartCoroutine("RestartMenuUI");
+                break;
+
         }
     }
     private void PauseMenuUI()
     {
-        if (pauseMenuUI.activeInHierarchy == false)
-            pauseMenuUI.SetActive(true);
-        else pauseMenuUI.SetActive(false);
+        if (_pauseMenuUI.activeInHierarchy == false)
+            _pauseMenuUI.SetActive(true);
+        else _pauseMenuUI.SetActive(false);
     }
 
     private void SettingsMenuUI()
     {
-        if (settingsMenuUI.activeInHierarchy == false)
-            settingsMenuUI.SetActive(true);
-        else settingsMenuUI.SetActive(false);
+        if (_settingsMenuUI.activeInHierarchy == false)
+            _settingsMenuUI.SetActive(true);
+        else _settingsMenuUI.SetActive(false);
 
     }
 
     private void MainMenuUI()
     {
-        if (mainMenuUI.activeInHierarchy == false)
+        if (_mainMenuUI.activeInHierarchy == false)
         {
             StopCoroutine("RestartMenuUI");
-            exitButtonUI.SetActive(false);
-            mainMenuUI.SetActive(true);
-            isGameOver = true;
+            _exitButtonUI.SetActive(false);
+            _mainMenuUI.SetActive(true);
+            _isGameOver = true;
             ShowRecord();
         }
         else
         {
-            scoreTextUI.GetComponent<TextMeshProUGUI>().color = Color.white;
-            exitButtonUI.SetActive(true);
-            mainMenuUI.SetActive(false);
-            isGameOver = false;
+            _scoreTextUI.GetComponent<TextMeshProUGUI>().color = Color.white;
+            _exitButtonUI.SetActive(true);
+            _mainMenuUI.SetActive(false);
+            _isGameOver = false;
         }
     }
 
     public void UpdateSkinStoreUI(Skin skin)
     {
-        if (storeUI.activeInHierarchy == true) StoreUI();
-        if (skinStoreUI.activeInHierarchy == false)
+        if (_storeUI.activeInHierarchy == true) StoreUI();
+        if (_skinStoreUI.activeInHierarchy == false)
         {
-            skinStoreUI.SetActive(true);
-            startButtonUI.SetActive(false);
+            _skinStoreUI.SetActive(true);
+            _startButtonUI.SetActive(false);
         }
-        skinNameText.GetComponent<TextMeshProUGUI>().text = skin.name;
-        if (skin.isObtained != true) skinPriceText.GetComponent<TextMeshProUGUI>().text = skin.price.ToString();
-        else skinPriceText.GetComponent<TextMeshProUGUI>().text = "Purchased";
-        skinRequirementsText.GetComponent<TextMeshProUGUI>().text = "Earn " + skin.requiredScore.ToString() + " points in one game";
-        if (gameManagerScript.scoreRecord >= skin.requiredScore)
-            storeMarkUI.SetActive(true);
-        else    storeMarkUI.SetActive(false);
+        _skinNameText.GetComponent<TextMeshProUGUI>().text = skin.name;
+        if (skin.isObtained != true) _skinPriceText.GetComponent<TextMeshProUGUI>().text = skin.price.ToString();
+        else _skinPriceText.GetComponent<TextMeshProUGUI>().text = "Purchased";
+        _skinRequirementsText.GetComponent<TextMeshProUGUI>().text = "Earn " + skin.requiredScore.ToString() + " points in one game";
+        if (_gameManagerScript.GetScoreRecord() >= skin.requiredScore)
+            _storeMarkUI.SetActive(true);
+        else    _storeMarkUI.SetActive(false);
     }
 
     public void CloseSkinStoreUI()
     {
-        skinStoreUI.SetActive(false);
-        startButtonUI.SetActive(true);
+        _skinStoreUI.SetActive(false);
+        _startButtonUI.SetActive(true);
     }
 
     public void DisplayCoinAmounts()
     {
-        coinTextUI.GetComponent<TextMeshProUGUI>().text = gameManagerScript.coins.ToString();
+        _coinTextUI.GetComponent<TextMeshProUGUI>().text = _gameManagerScript.GetCoinsAmount().ToString();
     }
 
     private void ShowRecord()
     {
 
-        scoreTextUI.GetComponent<TextMeshProUGUI>().text = gameManagerScript.scoreRecord.ToString();
-        scoreTextUI.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+        _scoreTextUI.GetComponent<TextMeshProUGUI>().text = _gameManagerScript.GetScoreRecord().ToString();
+        _scoreTextUI.GetComponent<TextMeshProUGUI>().color = Color.yellow;
     }
 
     public void StoreUI()
     {
-        if (isGameOver == true)
+        if (_isGameOver == true)
         {
-            if (skinStoreUI.activeInHierarchy == true) CloseSkinStoreUI();
-            if (storeUI.activeInHierarchy == false)
+            if (_skinStoreUI.activeInHierarchy == true) CloseSkinStoreUI();
+            if (_storeUI.activeInHierarchy == false)
             {
-                storeUI.SetActive(true);
-                storeExitButtonUI.SetActive(true);
-                menuTitleUI.SetActive(false);
+                _storeUI.SetActive(true);
+                _storeExitButtonUI.SetActive(true);
+                _menuTitleUI.SetActive(false);
             }
             else
             {
-                storeUI.SetActive(false);
-                storeExitButtonUI.SetActive(false);
-                menuTitleUI.SetActive(true);
+                _storeUI.SetActive(false);
+                _storeExitButtonUI.SetActive(false);
+                _menuTitleUI.SetActive(true);
             }
         }
     }
 
     private IEnumerator RestartMenuUI()
     {
-        if (restartMenuUI.activeInHierarchy == false && pauseMenuUI.activeInHierarchy == false)
+        if (_restartMenuUI.activeInHierarchy == false && _pauseMenuUI.activeInHierarchy == false)
         {
             yield return new WaitForSeconds(2f);
-            restartMenuUI.SetActive(true);
+            _restartMenuUI.SetActive(true);
         } else
         {
-            restartMenuUI.SetActive(false);
+            _restartMenuUI.SetActive(false);
         }
-        pauseMenuUI.SetActive(false);
+        _pauseMenuUI.SetActive(false);
     }
 
     public void PlayRewardedAd()

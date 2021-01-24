@@ -5,65 +5,53 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour, IGameManagerObserver
 {
     [Header("Spawn Manager Settings")]
-    [SerializeField]
-    private GameObject player;
-    [SerializeField]
-    private GameObject coinPrefab;
-    [SerializeField]
-    private GameObject ufoPrefab;
-    [SerializeField]
-    private GameObject blackCloudPrefab;
-    [SerializeField]
-    private float distanceFromPlayer;
-    [SerializeField]
-    private float minZSpawn;
-    [SerializeField]
-    private float maxZSpawn;
+    private GameManager _gameManagerScript;
+    [SerializeField] private ReferenceHandler _referenceHandler;
+    [SerializeField] private GameObject _umbrella;
+    [SerializeField] private GameObject _rotator;
+    [SerializeField] private GameObject _coinPrefab;
+    [SerializeField] private GameObject _ufoPrefab;
+    [SerializeField] private GameObject _blackCloudPrefab;
+    [SerializeField] private float _distanceFromPlayer;
+    [SerializeField] private float _minZSpawn;
+    [SerializeField] private float _maxZSpawn;
     [Header("Black Clouds Settings")]
-    [SerializeField]
-    private float minBlackCloudTimeToSpawn;
-    [SerializeField]
-    private float maxBlackCloudTimeToSpawn;
+    [SerializeField] private float _minBlackCloudTimeToSpawn;
+    [SerializeField] private float _maxBlackCloudTimeToSpawn;
     [Header("Ufos Settings")]
-    [SerializeField]
-    private float minUfoTimeToSpawn;
-    [SerializeField]
-    private float maxUfoTimeToSpawn;
+    [SerializeField] private float _minUfoTimeToSpawn;
+    [SerializeField] private float _maxUfoTimeToSpawn;
     [Header("Coins Settings")]
-    [SerializeField]
-    private float coinSpawnStep;
+    [SerializeField] private float _coinSpawnStep;
 
     private Vector3 playerPosition;
     private Vector3 spawnerPreviousPosition;
     private float nextZPosition;
-    private bool isGameOver;
-    private GameManager gameManagerScript;
     private List<GameObject> coinsPool = new List<GameObject>();
     private List<GameObject> ufoPool = new List<GameObject>();
     private List<GameObject> blackCloudsPool = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
     {
-        nextZPosition = Random.Range(minZSpawn + 1, maxZSpawn - 1);
+        _gameManagerScript = _referenceHandler.GetGameManagerReference();
+        if (_gameManagerScript != null)
+            _gameManagerScript.AddObserver(this);
+        nextZPosition = Random.Range(_minZSpawn + 1, _maxZSpawn - 1);
         spawnerPreviousPosition = transform.position;
         StartCoroutine("UfoSpawner");
         StartCoroutine("BlackCloudsSpawner");
-        gameManagerScript = FindObjectOfType<GameManager>();
-        if (gameManagerScript != null)
-            gameManagerScript.AddObserver(this);
     }
 
     void Update()
     {
         HandleSpawnerPosition();
         SpawnCoins();
-        if (isGameOver) StopAllCoroutines();
     }
 
     void HandleSpawnerPosition()
     {
-        playerPosition = player.transform.position;
-        Vector3 spawnerNewPosition = new Vector3(spawnerPreviousPosition.x, playerPosition.y - distanceFromPlayer, spawnerPreviousPosition.z);
+        playerPosition = _umbrella.transform.position;
+        Vector3 spawnerNewPosition = new Vector3(spawnerPreviousPosition.x, playerPosition.y - _distanceFromPlayer, spawnerPreviousPosition.z);
         transform.position = spawnerNewPosition;
     }
     private GameObject GetObjectToPool(List<GameObject> objectPool, GameObject prefab)
@@ -77,6 +65,11 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
             }
         }
         GameObject newObject = Instantiate(prefab);
+        InteractiveBehaviour objectScript;
+        if (newObject.CompareTag("Pickable"))
+            objectScript = newObject.transform.GetChild(0).GetComponent<InteractiveBehaviour>();
+        else objectScript = newObject.GetComponent<InteractiveBehaviour>();
+        objectScript.AssignGameObjects(_umbrella, _rotator);      
         objectPool.Add(newObject);
         return newObject;
     }
@@ -85,8 +78,8 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(minUfoTimeToSpawn, maxUfoTimeToSpawn));
-            GetObjectToPool(ufoPool, ufoPrefab).transform.position = RandomSpawnPosition();
+            yield return new WaitForSeconds(Random.Range(_minUfoTimeToSpawn, _maxUfoTimeToSpawn));
+            GetObjectToPool(ufoPool, _ufoPrefab).transform.position = RandomSpawnPosition();
         }
     }
 
@@ -94,27 +87,27 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(minBlackCloudTimeToSpawn, maxBlackCloudTimeToSpawn));
-            GetObjectToPool(blackCloudsPool, blackCloudPrefab).transform.position = RandomSpawnPosition();
+            yield return new WaitForSeconds(Random.Range(_minBlackCloudTimeToSpawn, _maxBlackCloudTimeToSpawn));
+            GetObjectToPool(blackCloudsPool, _blackCloudPrefab).transform.position = RandomSpawnPosition();
         }
     }
 
     void SpawnCoins()
     {
-        if (spawnerPreviousPosition.y - transform.position.y >= coinSpawnStep)
+        if (spawnerPreviousPosition.y - transform.position.y >= _coinSpawnStep)
         {
-            GetObjectToPool(coinsPool, coinPrefab).transform.position = RandomZStep();
+            GetObjectToPool(coinsPool, _coinPrefab).transform.position = RandomZStep();
             spawnerPreviousPosition.y = transform.position.y;
         }
     }
 
     Vector3 RandomZStep()
     {
-        if (nextZPosition > minZSpawn && nextZPosition < maxZSpawn)
+        if (nextZPosition > _minZSpawn && nextZPosition < _maxZSpawn)
             nextZPosition += Random.Range(0, 2) * 2 - 1;
-        else if (nextZPosition <= minZSpawn)
+        else if (nextZPosition <= _minZSpawn)
             nextZPosition += 1;
-        else if (nextZPosition >= maxZSpawn)
+        else if (nextZPosition >= _maxZSpawn)
             nextZPosition -= 1;
         Vector3 randomZStep = new Vector3(transform.position.x, transform.position.y, nextZPosition);
         return randomZStep;
@@ -122,7 +115,7 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
 
     Vector3 RandomSpawnPosition()
     {
-       Vector3 result = new Vector3(transform.position.x, transform.position.y, Random.Range(minZSpawn, maxZSpawn));
+       Vector3 result = new Vector3(transform.position.x, transform.position.y, Random.Range(_minZSpawn, _maxZSpawn));
        return result;
     }
     float RandomSeconds(float min, float max)
@@ -133,17 +126,19 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
 
     public void Notify(IGameManagerObserver.ChooseEvent option)
     {
-        if (option == IGameManagerObserver.ChooseEvent.death)
-            isGameOver = true;
-        if (option == IGameManagerObserver.ChooseEvent.gameContinue)
+        switch(option)
         {
-            isGameOver = false;
-            StartCoroutine("UfoSpawner");
-            StartCoroutine("BlackCloudsSpawner");
+            case IGameManagerObserver.ChooseEvent.death:
+                StopAllCoroutines();
+                break;
+            case IGameManagerObserver.ChooseEvent.gameContinue:
+                StartCoroutine("UfoSpawner");
+                StartCoroutine("BlackCloudsSpawner");
+                break;
         }
     }
     private void OnDisable()
     {
-        gameManagerScript.RemoveObserver(this);
+        _gameManagerScript.RemoveObserver(this);
     }
 }

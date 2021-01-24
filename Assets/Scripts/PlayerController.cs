@@ -2,24 +2,24 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody rb;
-    [SerializeField]
-    private float force;
-    private Vector3 positionToMove;
-    private GameManager gameManagerScript;
-    private SkinManager skinManagerScript;
-    [HideInInspector]
-    public GameObject umbrellaCopy;
-    public bool isGameOver;
-    private Vector3 currentVelocity;
-    private Vector3 highestVelocity;
+    [SerializeField] private ReferenceHandler _referenceHandler;
+    [SerializeField] protected float _forceOfMove;
+    private Rigidbody _rb;
+    private GameManager _gameManagerScript;
+    private SkinManager _skinManagerScript;
+    private GameObject _umbrellaCopy;
+    private bool _isGameOver;
+    private Vector3 _currentVelocity;
+    private Vector3 _highestVelocity;
+    private ITouchInput touchInputScript;
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        gameManagerScript = GameObject.FindObjectOfType<GameManager>();
-        skinManagerScript = GameObject.FindObjectOfType<SkinManager>();
-        gameManagerScript.umbrella = this.gameObject;
-        rb.velocity = new Vector3(0, -3, 0);
+        touchInputScript = new TouchScreenHandle();
+        _rb = GetComponent<Rigidbody>();
+        _gameManagerScript = _referenceHandler.GetGameManagerReference();
+        _skinManagerScript = _referenceHandler.GetSkinManagerReference();
+        _gameManagerScript.AssignUmbrella(this.gameObject);
+        _rb.velocity = new Vector3(0, -3, 0);
         ChangeSkin();
     }
 
@@ -30,78 +30,59 @@ public class PlayerController : MonoBehaviour
     }
 
     private void FixedUpdate() => CalculateYVelocity();
+    public GameManager GetGameManagerScript() => _gameManagerScript;
 
     void HandleTestPCController()
     {
-        if (!isGameOver)
+        if (!_isGameOver)
         {
             if (Input.GetKeyDown(KeyCode.RightArrow))
-                rb.AddForce(Vector3.forward * force, ForceMode.VelocityChange);
+                _rb.AddForce(Vector3.forward * _forceOfMove, ForceMode.VelocityChange);
             if (Input.GetKeyDown(KeyCode.LeftArrow))
-                rb.AddForce(Vector3.back * force, ForceMode.VelocityChange);
+                _rb.AddForce(Vector3.back * _forceOfMove, ForceMode.VelocityChange);
         }
     }
 
     void CalculateYVelocity()
     {
-        currentVelocity = rb.velocity;
-        if (currentVelocity.y < highestVelocity.y)
-            highestVelocity = currentVelocity;
+        _currentVelocity = _rb.velocity;
+        if (_currentVelocity.y < _highestVelocity.y)
+            _highestVelocity = _currentVelocity;
     }
 
     void HandleTouchScreen()
     {
-        if (Input.touchCount > 0 && !isGameOver)
+        if (Input.touchCount > 0 && !_isGameOver)
         {
             Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
-            {
-                Ray ray = Camera.main.ScreenPointToRay(touch.position);
-                Plane plane = new Plane(Vector3.right, transform.position);
-                float distance;
-                if (plane.Raycast(ray, out distance))
-                    positionToMove = ray.GetPoint(distance);
-                float directionZ = positionToMove.z - transform.position.z;
-                Vector3 direction = new Vector3(0, 0, Mathf.Sign(directionZ));
-                Debug.Log("Force added");
-                // rb.AddForce(direction * force, ForceMode.VelocityChange);
-                rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, Mathf.Sign(directionZ) * force);
-            }
+            touchInputScript.OnTouchMove(touch, transform, _rb, _forceOfMove);
         }
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (!isGameOver)
+        if (!_isGameOver)
         {
-            if (other.CompareTag("Coin"))
-            {
-                gameManagerScript.AddCoins(1);
-                other.gameObject.SetActive(false);
-            }
-            if (other.gameObject.CompareTag("Black Cloud") && !isGameOver)
-            {
-                other.gameObject.GetComponent<InteractiveBehaviour>().StartCoroutine("DeactivateDelay");
-                GameOver();
-            }
+            IPlayerContact contact = new PlayerContact();
+            contact.OnContactAction(other.gameObject, this);
         }
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ufo") && !isGameOver)
+        if (!_isGameOver)
         {
-            collision.gameObject.GetComponent<InteractiveBehaviour>().StartCoroutine("DeactivateDelay");
-            GameOver();
+            IPlayerContact contact = new PlayerContact();
+            contact.OnContactAction(collision.gameObject, this);
         }
     }
-    private void GameOver()
+    public void GameOver()
     {
         if (name == "Umbrella")
         {
-            umbrellaCopy = Instantiate(this.gameObject);
-            Destroy(umbrellaCopy.GetComponent<PlayerController>());
-            umbrellaCopy.GetComponent<Rigidbody>().velocity = rb.velocity;
-            gameManagerScript.GameOver();
-            isGameOver = true;
+            _umbrellaCopy = Instantiate(this.gameObject);
+            Destroy(_umbrellaCopy.GetComponent<PlayerController>());
+            _umbrellaCopy.GetComponent<Rigidbody>().velocity = _rb.velocity;
+            _gameManagerScript.GameOver();
+            _isGameOver = true;
             this.gameObject.SetActive(false);
         }
     }
@@ -110,7 +91,7 @@ public class PlayerController : MonoBehaviour
     {
         for (int i = 0; i < this.gameObject.transform.GetChild(0).childCount - 1; i++)
         {
-            if (i == skinManagerScript.currentSkinNumber)
+            if (i == _skinManagerScript._currentSkinNumber)
                 this.gameObject.transform.GetChild(0).GetChild(i).gameObject.SetActive(true);
             else this.gameObject.transform.GetChild(0).GetChild(i).gameObject.SetActive(false);
         }
@@ -118,8 +99,8 @@ public class PlayerController : MonoBehaviour
 
     public void GameContinue()
     {
-        rb.velocity = highestVelocity;
-        umbrellaCopy.SetActive(false);
-        isGameOver = false;
+        _rb.velocity = _highestVelocity;
+        _umbrellaCopy.SetActive(false);
+        _isGameOver = false;
     }
 }

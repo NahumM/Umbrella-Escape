@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 3936801065380180743}
   - component: {fileID: 3936801065380950823}
   - component: {fileID: 3936801065381949927}
-  - component: {fileID: 7939938256298193836}
   - component: {fileID: 3630738828409722590}
   - component: {fileID: -3374660292242203970}
+  - component: {fileID: 2113097927559178652}
   m_Layer: 0
-  m_Name: ufo
-  m_TagString: Ufo
+  m_Name: Ufo
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -88,21 +88,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7939938256298193836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3936801065380015911}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e84fa63b8536b444897eed6579b8128, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  allowedDistanceFromPlayer: 9
-  rotationSpeed: 200
-  speed: 3
 --- !u!64 &3630738828409722590
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -133,3 +118,17 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2113097927559178652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3936801065380015911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d35ec0d722ea03c458eddafeadddba92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _allowedDistanceFromPlayer: 25
+  _speed: 3

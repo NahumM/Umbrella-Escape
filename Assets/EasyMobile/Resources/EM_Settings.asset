@@ -280,12 +280,47 @@ MonoBehaviour:
   mInAppPurchaseSettings:
     mAutoInit: 1
     mTargetAndroidStore: 0
-    mSimulateAppleAskToBuy: 0
+    mSimulateAppleAskToBuy: 1
     mInterceptApplePromotionalPurchases: 0
     mEnableAmazonSandboxTesting: 0
     mValidateAppleReceipt: 1
     mValidateGooglePlayReceipt: 1
-    mProducts: []
+    mProducts:
+    - _name: Gold - 1500
+      _type: 0
+      _id: gold1
+      _price: 
+      _description: 
+      _storeSpecificIds: []
+      _isEditingAdvanced: 0
+    - _name: Gold - 4000
+      _type: 0
+      _id: gold2
+      _price: 
+      _description: 
+      _storeSpecificIds: []
+      _isEditingAdvanced: 0
+    - _name: Gold - 12000
+      _type: 0
+      _id: gold3
+      _price: 
+      _description: 
+      _storeSpecificIds: []
+      _isEditingAdvanced: 0
+    - _name: Gold - 25000
+      _type: 0
+      _id: gold4
+      _price: 
+      _description: 
+      _storeSpecificIds: []
+      _isEditingAdvanced: 0
+    - _name: Gold - 60000
+      _type: 0
+      _id: gold5
+      _price: 
+      _description: 
+      _storeSpecificIds: []
+      _isEditingAdvanced: 0
   mNotificationSettings:
     mAutoInit: 1
     mAutoInitDelay: 0
@@ -390,5 +425,5 @@ MonoBehaviour:
   mIsGameServiceModuleEnable: 0
   mIsNotificationModuleEnable: 0
   mIsSharingModuleEnable: 0
-  mActiveModuleIndex: 0
+  mActiveModuleIndex: 3
   mIsSelectingModule: 0

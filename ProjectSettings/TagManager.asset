@@ -11,6 +11,8 @@ TagManager:
   - Clouds
   - Ufo
   - Black Cloud
+  - Pickable
+  - Enemy
   layers:
   - Default
   - TransparentFX

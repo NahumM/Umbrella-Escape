@@ -3,44 +3,48 @@ using UnityEngine;
 
 public class BuildingsPooling : MonoBehaviour
 {
-    private List<GameObject> pooledObjects = new List<GameObject>();
-    private int florsCount;
-    private float floorHeight;
-    private Plane[] cameraFrustum;
+    private List<GameObject> _pooledObjects = new List<GameObject>();
+    private int _florsCount;
+    private float _floorHeight;
+    private Camera cam;
     void Start()
     {
+        cam = Camera.main;
         for (int i = 0; i < transform.childCount; i++)
-            pooledObjects.Add(transform.GetChild(i).gameObject);
+            _pooledObjects.Add(transform.GetChild(i).gameObject);
     }
-    void Update()
+
+    private void Update()
     {
-        cameraFrustum = GeometryUtility.CalculateFrustumPlanes(Camera.main);
-        if (!GeometryUtility.TestPlanesAABB(cameraFrustum, pooledObjects[0].GetComponent<Renderer>().bounds))
+        Camera cam = Camera.main;
+        Vector3 viewPos = cam.WorldToViewportPoint(_pooledObjects[0].transform.position);
+        if (viewPos.y > 1)
         {
             if (CompareTag("Building") || CompareTag("BuggedBuilding"))
                 PoolBuilding();
             if (CompareTag("Clouds"))
                 PoolClouds();
-        }
+        }  
     }
+
 
     private void PoolBuilding()
     {
         if (!CompareTag("BuggedBuilding")) // One building has bugged mesh, need to adjust it manualy
-            floorHeight = pooledObjects[0].GetComponent<Renderer>().bounds.size.y;
-        else floorHeight = 3;
-        Vector3 oldPosition = pooledObjects[0].transform.position;
-        Vector3 newPosition = new Vector3(oldPosition.x, pooledObjects[pooledObjects.Count - 1].transform.position.y - floorHeight, oldPosition.z);
-        pooledObjects[0].transform.position = newPosition;
-        pooledObjects.Add(pooledObjects[0]);
-        pooledObjects.RemoveAt(0);
+            _floorHeight = _pooledObjects[0].GetComponent<Renderer>().bounds.size.y;
+        else _floorHeight = 3;
+        Vector3 oldPosition = _pooledObjects[0].transform.position;
+        Vector3 newPosition = new Vector3(oldPosition.x, _pooledObjects[_pooledObjects.Count - 1].transform.position.y - _floorHeight, oldPosition.z);
+        _pooledObjects[0].transform.position = newPosition;
+        _pooledObjects.Add(_pooledObjects[0]);
+        _pooledObjects.RemoveAt(0);
     }
     private void PoolClouds()
     {
-        Vector3 oldPosition = pooledObjects[0].transform.position;
-        Vector3 newPosition = new Vector3(oldPosition.x, pooledObjects[pooledObjects.Count - 1].transform.position.y - 243, oldPosition.z);
-        pooledObjects[0].transform.position = newPosition;
-        pooledObjects.Add(pooledObjects[0]);
-        pooledObjects.RemoveAt(0);
+        Vector3 oldPosition = _pooledObjects[0].transform.position;
+        Vector3 newPosition = new Vector3(oldPosition.x, _pooledObjects[_pooledObjects.Count - 1].transform.position.y - 243, oldPosition.z);
+        _pooledObjects[0].transform.position = newPosition;
+        _pooledObjects.Add(_pooledObjects[0]);
+        _pooledObjects.RemoveAt(0);
     }
 }

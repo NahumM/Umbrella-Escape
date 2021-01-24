@@ -3,95 +3,96 @@ using UnityEngine;
 
 public class SkinManager : MonoBehaviour, IGameManagerObserver
 {
-    public int currentSkinNumber;
-    private int previousSkinNumber;
-    private bool isSkinMenuOn;
-    [SerializeField]
-    private List<Skin> skins;
-    private UIManager uiManagerScript;
-    private GameManager gameManagerScript;
+    public int _currentSkinNumber { get; private set; }
+    private int _previousSkinNumber;
+    private bool _isSkinMenuOn;
+    [SerializeField] private List<Skin> _skins;
+    [SerializeField] private UIManager _uiManagerScript;
+    [SerializeField] private GameManager _gameManagerScript;
     void Start()
     {
-        uiManagerScript = GameObject.FindObjectOfType<UIManager>();
-        gameManagerScript = GameObject.FindObjectOfType<GameManager>();
         LoadSkinsData();
-        gameManagerScript.AddObserver(this);
-        if (skins[currentSkinNumber].isObtained == false)
-            currentSkinNumber = 0;
+        _gameManagerScript.AddObserver(this);
+        if (_skins[_currentSkinNumber].isObtained == false)
+            _currentSkinNumber = 0;
         EquipCurrentClothes();
-        previousSkinNumber = currentSkinNumber;
+        _previousSkinNumber = _currentSkinNumber;
     }
 
     public void TurnSkinMenuOn()
     {
-        if (isSkinMenuOn == false)
+        if (_isSkinMenuOn == false)
         {
             UpdateSkinStoreUI();
-            isSkinMenuOn = true;
+            _isSkinMenuOn = true;
         } else
         {
-            skins[currentSkinNumber].skinGameObject.SetActive(false);
-            currentSkinNumber = previousSkinNumber;
-            skins[currentSkinNumber].skinGameObject.SetActive(true);
-            uiManagerScript.CloseSkinStoreUI();
-            isSkinMenuOn = false;
+            _skins[_currentSkinNumber].skinGameObject.SetActive(false);
+            _currentSkinNumber = _previousSkinNumber;
+            _skins[_currentSkinNumber].skinGameObject.SetActive(true);
+            _uiManagerScript.CloseSkinStoreUI();
+            _isSkinMenuOn = false;
         }
     }
     public void Notify(IGameManagerObserver.ChooseEvent option)
     {
-        if (option == IGameManagerObserver.ChooseEvent.menuLoaded)
-            EquipCurrentClothes();
+        switch(option)
+        {
+            case IGameManagerObserver.ChooseEvent.menuLoaded:
+                EquipCurrentClothes();
+                break;
+        }
     }
 
     private void UpdateSkinStoreUI()
     {
-        uiManagerScript.UpdateSkinStoreUI(skins[currentSkinNumber]);
+        _uiManagerScript.UpdateSkinStoreUI(_skins[_currentSkinNumber]);
     }
 
     public void NextSkin()
     {
-        if (currentSkinNumber < skins.Count - 1)
+        if (_currentSkinNumber < _skins.Count - 1)
         {
-            skins[currentSkinNumber].skinGameObject.SetActive(false);
-            currentSkinNumber++;
-            skins[currentSkinNumber].skinGameObject.SetActive(true);
+            _skins[_currentSkinNumber].skinGameObject.SetActive(false);
+            _currentSkinNumber++;
+            _skins[_currentSkinNumber].skinGameObject.SetActive(true);
             UpdateSkinStoreUI();
         }
     }
     public void PreviousSkin()
     {
-        if (currentSkinNumber > 0)
+        if (_currentSkinNumber > 0)
         {
-            skins[currentSkinNumber].skinGameObject.SetActive(false);
-            currentSkinNumber--;
-            skins[currentSkinNumber].skinGameObject.SetActive(true);
+            _skins[_currentSkinNumber].skinGameObject.SetActive(false);
+            _currentSkinNumber--;
+            _skins[_currentSkinNumber].skinGameObject.SetActive(true);
             UpdateSkinStoreUI();
         }
     }
 
     public void PurchaseSkin()
     {
-        if (gameManagerScript.coins > skins[currentSkinNumber].price && skins[currentSkinNumber].isObtained == false)
+        if (_gameManagerScript.GetCoinsAmount() > _skins[_currentSkinNumber].price && _skins[_currentSkinNumber].isObtained == false)
         {
-            gameManagerScript.AddCoins(-skins[currentSkinNumber].price);
-            skins[currentSkinNumber].isObtained = true;
+            _gameManagerScript.AddCoins(-_skins[_currentSkinNumber].price);
+            _skins[_currentSkinNumber].isObtained = true;
             UpdateSkinStoreUI();
         }
     }
 
     public void EquipSkin()
     {
-        if (skins[currentSkinNumber].isObtained == true)
+        if (_skins[_currentSkinNumber].isObtained == true)
         {
-            uiManagerScript.CloseSkinStoreUI();
-            previousSkinNumber = currentSkinNumber;
+            _uiManagerScript.CloseSkinStoreUI();
+            _previousSkinNumber = _currentSkinNumber;
         }
     }
 
     void AssignGameObjects()
     {
         Transform character = GameObject.Find("Character_BusinessMan_Shirt_01").transform;
-        foreach (Skin skin in skins)
+        foreach (Skin skin in _skins)
         {
             skin.skinGameObject = character.GetChild(skin.id).gameObject;
         }
@@ -99,11 +100,11 @@ public class SkinManager : MonoBehaviour, IGameManagerObserver
 
     void EquipCurrentClothes()
     {
-        if (skins[currentSkinNumber].skinGameObject == null)
+        if (_skins[_currentSkinNumber].skinGameObject == null)
             AssignGameObjects();
-        foreach (Skin skin in skins)
+        foreach (Skin skin in _skins)
         {
-            if (skin.id != currentSkinNumber)
+            if (skin.id != _currentSkinNumber)
             {
                 skin.skinGameObject.SetActive(false);
             }
@@ -113,41 +114,27 @@ public class SkinManager : MonoBehaviour, IGameManagerObserver
 
     private void SaveSkinsData()
     {
-        foreach (Skin skin in skins)
+        foreach (Skin skin in _skins)
         {
-            PlayerPrefs.SetInt("Skin" + skin.id, boolToInt(skin.isObtained));
+            new SaveData("Skin" + skin.id, skin.isObtained);
         }
-        if (skins[currentSkinNumber].isObtained == true)
-        PlayerPrefs.SetInt("CurrentSkin", currentSkinNumber);
-        else PlayerPrefs.SetInt("CurrentSkin", previousSkinNumber);
-        PlayerPrefs.Save();
+        if (_skins[_currentSkinNumber].isObtained)
+            new SaveData("CurrentSkin", _currentSkinNumber);
+        else new SaveData("CurrentSkin", _previousSkinNumber);
     }
 
     private void LoadSkinsData()
     {
-        foreach(Skin skin in skins)
-            skin.isObtained = intToBool(PlayerPrefs.GetInt("Skin" + skin.id));
-        currentSkinNumber = PlayerPrefs.GetInt("CurrentSkin");
-
-    }
-
-    int boolToInt(bool answer)
-    {
-        if (answer) return 1;
-        else return 0;
-    }
-
-    bool intToBool(int answer)
-    {
-        if (answer == 1) return true;
-        else return false;
-    }
-
-    private void OnApplicationFocus(bool focus)
-    {
-        if (focus == false)
-            SaveSkinsData();
+        foreach(Skin skin in _skins)
+            skin.isObtained = new LoadData().GetBool("Skin" + skin.id);
+        _currentSkinNumber = new LoadData().GetInt("CurrentSkin");
     }
 
     private void OnApplicationQuit() => SaveSkinsData();
+
+
+    void OnApplicationFocus(bool focus)
+    {
+        if (!focus) SaveSkinsData();
+    }
 }
