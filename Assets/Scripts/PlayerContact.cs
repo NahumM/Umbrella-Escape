@@ -12,7 +12,7 @@ public class PlayerContact : IPlayerContact
         {
             if (vibrator != null)
             {
-                vibrator.Vibrate(60);
+                vibrator.Vibrate(20);
             }
             pcontroller.GetAudioController().GetAudioSource().panStereo = 0;
             pcontroller.GetAudioController().PlayCoinSound();
