@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,19 +15,30 @@ public class GameManager : MonoBehaviour
     private bool _isGameStarted;
     private GameObject umbrella;
     private AdsController _adsController;
+    private PurchaseController _purchaseController;
+
+    [SerializeField] private AudioMixer mixer;
+    public float musicVolume;
+    public float effectsVolume;
+    public bool _isVibrationOn = true;
 
     private void Awake()
     {
-        int gameManagersCount = FindObjectsOfType<GameManager>().Length; 
-        if (gameManagersCount != 1) Destroy(this.gameObject); 
-        else DontDestroyOnLoad(this.gameObject);
+        DeleteOtherIntancesOfThisGameObject();
         LoadGameData();
     }
     void Start()
     {
+        LoadSettings();
         SceneManager.sceneLoaded += CheckForSceneChange;
-        DontDestroyOnLoad(this.gameObject);
-        _adsController = new AdsController(this);
+        Initilize();
+
+    }
+    void Initilize()
+    {
+       _adsController = new AdsController(this);
+        _purchaseController = new PurchaseController(this);
+        _purchaseController.SubscribeToPurchase();
 
     }
     void Update()
@@ -39,6 +51,7 @@ public class GameManager : MonoBehaviour
     public int GetScoreRecord() => _scoreRecord;
     public bool GetIsGameOver() => _isGameOver;
     public void AssignUmbrella(GameObject umbrellaObject) => umbrella = umbrellaObject;
+    public PurchaseController GetPurchaseController() => _purchaseController;
     #endregion
     #region ObserverImplementation
     private List<IGameManagerObserver> gameManagerObservers = new List<IGameManagerObserver>();
@@ -79,6 +92,7 @@ public class GameManager : MonoBehaviour
         _isGameOver = false;
         NotifyObservers(IGameManagerObserver.ChooseEvent.gameRestart);
         Time.timeScale = 1f;
+        StartCoroutine("ShowBannerWithDelay");
     }
 
     public void GameOver()
@@ -90,6 +104,7 @@ public class GameManager : MonoBehaviour
         NotifyObservers(IGameManagerObserver.ChooseEvent.death);
     }
 
+    public void AdToContinueTheGame() => _adsController.ShowRewardedAd();
     public void GameContinue()
     {
         umbrella.SetActive(true);
@@ -132,14 +147,23 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(5);
             SceneManager.LoadScene(1);
             _isGameStarted = true;
+            StartCoroutine("ShowBannerWithDelay");
         }
         else
         {
             Pause();
             _score = 0;
             _isGameStarted = false;
+            StopCoroutine("ShowBannerWithDelay");
+            _adsController.HideBannerAd();
             SceneManager.LoadScene(0);
         }
+    }
+
+    private IEnumerator ShowBannerWithDelay()
+    {
+        yield return new WaitForSeconds(2);
+        _adsController.ShowBannedAd();
     }
     private IEnumerator ShowAdWithDelay()
     {
@@ -153,23 +177,42 @@ public class GameManager : MonoBehaviour
             _score += Time.deltaTime * _pointsMultiplier;
     }
 
+    void DeleteOtherIntancesOfThisGameObject()
+    {
+        int gameManagersCount = FindObjectsOfType<GameManager>().Length;
+        if (gameManagersCount != 1) Destroy(this.gameObject);
+        else DontDestroyOnLoad(this.gameObject);
+    }
+
     void LoadGameData()
     {
         _coins = new LoadData().GetInt("Coins");
         _scoreRecord = new LoadData().GetInt("Score Record");
     }
 
-    void SaveGameData()
+    void LoadSettings()
     {
+        effectsVolume = new LoadData().GetFloat("EffectsVolume");
+        musicVolume = new LoadData().GetFloat("MusicVolume");
+        mixer.SetFloat("EffectsVolume", effectsVolume);
+        mixer.SetFloat("MusicVolume", musicVolume);
+        _isVibrationOn = new LoadData().GetBool("Vibrator");
+    }
+
+    void SaveData()
+    {
+        new SaveData("MusicVolume", musicVolume);
+        new SaveData("EffectsVolume", effectsVolume);
         new SaveData("Coins", _coins);
         new SaveData("Score Record", _scoreRecord);
+        new SaveData("Vibrator", _isVibrationOn);
     }
 
     private void OnApplicationFocus(bool focus)
     {
         if (focus == false)
-            SaveGameData();
+            SaveData();
     }
 
-    private void OnApplicationQuit() => SaveGameData();
+    private void OnApplicationQuit() => SaveData();
 }

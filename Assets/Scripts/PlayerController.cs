@@ -7,20 +7,24 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rb;
     private GameManager _gameManagerScript;
     private SkinManager _skinManagerScript;
+    private AudioController _audioController;
     private GameObject _umbrellaCopy;
+    [SerializeField] private GameObject _lHand;
     private bool _isGameOver;
     private Vector3 _currentVelocity;
     private Vector3 _highestVelocity;
     private ITouchInput touchInputScript;
     void Start()
     {
-        touchInputScript = new TouchScreenHandle();
+        touchInputScript = new TouchScreenHandle(this);
         _rb = GetComponent<Rigidbody>();
+        _audioController = GetComponent<AudioController>();
         _gameManagerScript = _referenceHandler.GetGameManagerReference();
         _skinManagerScript = _referenceHandler.GetSkinManagerReference();
         _gameManagerScript.AssignUmbrella(this.gameObject);
-        _rb.velocity = new Vector3(0, -3, 0);
+        IfCloneDetachUmbrella();
         ChangeSkin();
+        _rb.velocity = new Vector3(0, -4, 0);;
     }
 
     void Update()
@@ -31,15 +35,25 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate() => CalculateYVelocity();
     public GameManager GetGameManagerScript() => _gameManagerScript;
+    public AudioController GetAudioController() => _audioController;
+    public float GetForce() => _forceOfMove;
 
     void HandleTestPCController()
     {
         if (!_isGameOver)
         {
             if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
                 _rb.AddForce(Vector3.forward * _forceOfMove, ForceMode.VelocityChange);
+                _audioController.GetAudioSource().panStereo = 1;
+                _audioController.PlaySwingSound();
+            }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                _audioController.GetAudioSource().panStereo = -1;
                 _rb.AddForce(Vector3.back * _forceOfMove, ForceMode.VelocityChange);
+                _audioController.PlaySwingSound();
+            }
         }
     }
 
@@ -48,6 +62,8 @@ public class PlayerController : MonoBehaviour
         _currentVelocity = _rb.velocity;
         if (_currentVelocity.y < _highestVelocity.y)
             _highestVelocity = _currentVelocity;
+        if (_currentVelocity.y > _highestVelocity.y) { }
+          //  _rb.velocity = new Vector3(_rb.velocity.x, _highestVelocity.y, _rb.velocity.z);
     }
 
     void HandleTouchScreen()
@@ -55,18 +71,19 @@ public class PlayerController : MonoBehaviour
         if (Input.touchCount > 0 && !_isGameOver)
         {
             Touch touch = Input.GetTouch(0);
-            touchInputScript.OnTouchMove(touch, transform, _rb, _forceOfMove);
+            touchInputScript.OnTouchMove(touch, transform, _rb);
         }
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (!_isGameOver)
-        {
-            IPlayerContact contact = new PlayerContact();
-            contact.OnContactAction(other.gameObject, this);
-        }
+        BodyPartTrigger(other);
     }
     private void OnCollisionEnter(Collision collision)
+    {
+        BodyPartCollision(collision);
+    }
+
+    public void BodyPartCollision(Collision collision)
     {
         if (!_isGameOver)
         {
@@ -74,15 +91,25 @@ public class PlayerController : MonoBehaviour
             contact.OnContactAction(collision.gameObject, this);
         }
     }
+
+    public void BodyPartTrigger(Collider other)
+    {
+        if (!_isGameOver)
+        {
+            IPlayerContact contact = new PlayerContact();
+            contact.OnContactAction(other.gameObject, this);
+        }
+    }
     public void GameOver()
     {
         if (name == "Umbrella")
         {
+            _isGameOver = true;
             _umbrellaCopy = Instantiate(this.gameObject);
             Destroy(_umbrellaCopy.GetComponent<PlayerController>());
-            _umbrellaCopy.GetComponent<Rigidbody>().velocity = _rb.velocity;
+            _umbrellaCopy.GetComponent<Rigidbody>().freezeRotation = false;
+            _umbrellaCopy.GetComponent<Rigidbody>().velocity = _highestVelocity;
             _gameManagerScript.GameOver();
-            _isGameOver = true;
             this.gameObject.SetActive(false);
         }
     }
@@ -102,5 +129,13 @@ public class PlayerController : MonoBehaviour
         _rb.velocity = _highestVelocity;
         _umbrellaCopy.SetActive(false);
         _isGameOver = false;
+    }
+
+    void IfCloneDetachUmbrella()
+    {
+        if (this.gameObject.name != "Umbrella")
+        {
+            Destroy(_lHand.GetComponent<FixedJoint>());
+        }
     }
 }

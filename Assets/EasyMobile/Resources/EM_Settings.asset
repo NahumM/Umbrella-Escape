@@ -286,35 +286,35 @@ MonoBehaviour:
     mValidateAppleReceipt: 1
     mValidateGooglePlayReceipt: 1
     mProducts:
-    - _name: Gold - 1500
+    - _name: Gold - 1000
       _type: 0
       _id: gold1
       _price: 
       _description: 
       _storeSpecificIds: []
       _isEditingAdvanced: 0
-    - _name: Gold - 4000
+    - _name: Gold - 2000
       _type: 0
       _id: gold2
       _price: 
       _description: 
       _storeSpecificIds: []
       _isEditingAdvanced: 0
-    - _name: Gold - 12000
+    - _name: Gold - 4000
       _type: 0
       _id: gold3
       _price: 
       _description: 
       _storeSpecificIds: []
       _isEditingAdvanced: 0
-    - _name: Gold - 25000
+    - _name: Gold - 6000
       _type: 0
       _id: gold4
       _price: 
       _description: 
       _storeSpecificIds: []
       _isEditingAdvanced: 0
-    - _name: Gold - 60000
+    - _name: Gold - 8000
       _type: 0
       _id: gold5
       _price: 

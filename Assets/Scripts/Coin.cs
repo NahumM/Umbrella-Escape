@@ -1,6 +1,10 @@
 public class Coin : InteractiveBehaviour
 {
-    void Update() => transform.rotation = _rotator.transform.rotation;
+    protected override void Update()
+    {
+        transform.rotation = _rotator.transform.rotation;
+        DeactivateIfOutOfBound();
+    }
 
     protected override void DeactivateIfOutOfBound()
     {

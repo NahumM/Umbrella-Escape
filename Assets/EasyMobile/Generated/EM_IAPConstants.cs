@@ -8,11 +8,11 @@ namespace EasyMobile
 {
 	public static class EM_IAPConstants
 	{
-		public const string Product_Gold__60000 = "Gold - 60000";
-		public const string Product_Gold__1500 = "Gold - 1500";
-		public const string Product_Gold__25000 = "Gold - 25000";
-		public const string Product_Gold__12000 = "Gold - 12000";
+		public const string Product_Gold__2000 = "Gold - 2000";
 		public const string Product_Gold__4000 = "Gold - 4000";
+		public const string Product_Gold__8000 = "Gold - 8000";
+		public const string Product_Gold__6000 = "Gold - 6000";
+		public const string Product_Gold__1000 = "Gold - 1000";
 
 	}
 }

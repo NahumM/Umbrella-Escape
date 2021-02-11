@@ -29,13 +29,10 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
 
     void Awake()
     {
-        int uiManagersCount = FindObjectsOfType<UIManager>().Length;
-        if (uiManagersCount != 1) Destroy(this.gameObject);
-        else DontDestroyOnLoad(this.gameObject);
+        DeleteOtherInstancesOfThisGameObject();
     }
     void Start()
     {
-        DontDestroyOnLoad(this.gameObject);
         _isGameOver = true;
         if (_gameManagerScript != null)
             _gameManagerScript.AddObserver(this);
@@ -181,5 +178,12 @@ public class UIManager : MonoBehaviour, IGameManagerObserver
     public void PlayRewardedAd()
     {
         Advertising.ShowRewardedAd();
+    }
+
+    void DeleteOtherInstancesOfThisGameObject()
+    {
+        int uiManagersCount = FindObjectsOfType<UIManager>().Length;
+        if (uiManagersCount != 1) Destroy(this.gameObject);
+        else DontDestroyOnLoad(this.gameObject);
     }
 }

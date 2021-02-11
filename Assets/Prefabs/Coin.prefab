@@ -94,7 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d737b03f3d3c894aa8c71ac3a58f19b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _allowedDistanceFromPlayer: 25
+  _allowedDistanceFromPlayer: 9
 --- !u!1 &3479887512287128814
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,5 +138,5 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2.5524178, y: 1, z: 0.60157967}
+  m_Size: {x: 5.1839104, y: 1, z: 0.60157967}
   m_Center: {x: -0.01710701, y: 0, z: -0.0015439987}

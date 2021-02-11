@@ -19,5 +19,15 @@ public class AdsController
         if (Advertising.IsInterstitialAdReady())
             Advertising.ShowInterstitialAd();
     }
+
+    public void ShowBannedAd()
+    {
+        Advertising.ShowBannerAd(BannerAdPosition.Bottom);
+    }
+
+    public void HideBannerAd()
+    {
+        Advertising.HideBannerAd();
+    }
     void RewardedAdCompletedHandler(RewardedAdNetwork network, AdPlacement location) => _gameManagerScript.GameContinue();
 }

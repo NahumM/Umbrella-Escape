@@ -6,7 +6,10 @@ public class InteractiveBehaviour : MonoBehaviour
     protected GameObject _umbrella;
     protected GameObject _rotator;
     [SerializeField] protected float _allowedDistanceFromPlayer;
-    void Update() => DeactivateIfOutOfBound();
+    virtual protected void Update()
+    {
+        DeactivateIfOutOfBound();
+    }
     virtual protected void DeactivateIfOutOfBound()
     {
         if (_umbrella != null)
@@ -20,7 +23,7 @@ public class InteractiveBehaviour : MonoBehaviour
         _rotator = rotator;
     }
 
-    private IEnumerator DeactivateDelay()
+    protected IEnumerator DeactivateDelay()
     {
         yield return new WaitForSeconds(1.5f);
         this.gameObject.SetActive(false);

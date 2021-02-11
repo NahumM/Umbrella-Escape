@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnManager : MonoBehaviour, IGameManagerObserver
+public class SpawnManager : MonoBehaviour
 {
     [Header("Spawn Manager Settings")]
     private GameManager _gameManagerScript;
@@ -16,14 +16,17 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
     [SerializeField] private float _minZSpawn;
     [SerializeField] private float _maxZSpawn;
     [Header("Black Clouds Settings")]
-    [SerializeField] private float _minBlackCloudTimeToSpawn;
-    [SerializeField] private float _maxBlackCloudTimeToSpawn;
+    [SerializeField] private int cloudStepsToSpawn;
+    [SerializeField] private int minCloudStepsToSpawn;
+    [SerializeField] private int maxCloudStepsToSpawn;
     [Header("Ufos Settings")]
-    [SerializeField] private float _minUfoTimeToSpawn;
-    [SerializeField] private float _maxUfoTimeToSpawn;
+    [SerializeField] private int ufoStepsToSpawn;
+    [SerializeField] private int minUfoStepsToSpawn;
+    [SerializeField] private int maxUfoStepsToSpawn;
     [Header("Coins Settings")]
-    [SerializeField] private float _coinSpawnStep;
+    [SerializeField] private int _coinSpawnStep;
 
+    private int spawnStepsCount;
     private Vector3 playerPosition;
     private Vector3 spawnerPreviousPosition;
     private float nextZPosition;
@@ -33,13 +36,8 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
     // Start is called before the first frame update
     void Start()
     {
-        _gameManagerScript = _referenceHandler.GetGameManagerReference();
-        if (_gameManagerScript != null)
-            _gameManagerScript.AddObserver(this);
         nextZPosition = Random.Range(_minZSpawn + 1, _maxZSpawn - 1);
         spawnerPreviousPosition = transform.position;
-        StartCoroutine("UfoSpawner");
-        StartCoroutine("BlackCloudsSpawner");
     }
 
     void Update()
@@ -69,35 +67,27 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
         if (newObject.CompareTag("Pickable"))
             objectScript = newObject.transform.GetChild(0).GetComponent<InteractiveBehaviour>();
         else objectScript = newObject.GetComponent<InteractiveBehaviour>();
-        objectScript.AssignGameObjects(_umbrella, _rotator);      
+        objectScript.AssignGameObjects(_umbrella, _rotator);
         objectPool.Add(newObject);
         return newObject;
     }
-
-    IEnumerator UfoSpawner()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(Random.Range(_minUfoTimeToSpawn, _maxUfoTimeToSpawn));
-            GetObjectToPool(ufoPool, _ufoPrefab).transform.position = RandomSpawnPosition();
-        }
-    }
-
-    IEnumerator BlackCloudsSpawner()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(Random.Range(_minBlackCloudTimeToSpawn, _maxBlackCloudTimeToSpawn));
-            GetObjectToPool(blackCloudsPool, _blackCloudPrefab).transform.position = RandomSpawnPosition();
-        }
-    }
-
     void SpawnCoins()
     {
         if (spawnerPreviousPosition.y - transform.position.y >= _coinSpawnStep)
         {
+            spawnStepsCount++;
             GetObjectToPool(coinsPool, _coinPrefab).transform.position = RandomZStep();
             spawnerPreviousPosition.y = transform.position.y;
+            if (spawnStepsCount == cloudStepsToSpawn)
+            {
+                GetObjectToPool(blackCloudsPool, _blackCloudPrefab).transform.position = RandomSpawnPosition();
+                cloudStepsToSpawn += Random.Range(minCloudStepsToSpawn, maxCloudStepsToSpawn);
+            }
+            if (spawnStepsCount == ufoStepsToSpawn)
+            {
+                GetObjectToPool(ufoPool, _ufoPrefab).transform.position = RandomSpawnPosition();
+                ufoStepsToSpawn += Random.Range(minUfoStepsToSpawn, maxUfoStepsToSpawn);
+            }
         }
     }
 
@@ -122,23 +112,5 @@ public class SpawnManager : MonoBehaviour, IGameManagerObserver
     {
         float result = Random.Range(min, max);
         return result;
-    }
-
-    public void Notify(IGameManagerObserver.ChooseEvent option)
-    {
-        switch(option)
-        {
-            case IGameManagerObserver.ChooseEvent.death:
-                StopAllCoroutines();
-                break;
-            case IGameManagerObserver.ChooseEvent.gameContinue:
-                StartCoroutine("UfoSpawner");
-                StartCoroutine("BlackCloudsSpawner");
-                break;
-        }
-    }
-    private void OnDisable()
-    {
-        _gameManagerScript.RemoveObserver(this);
     }
 }

@@ -5,7 +5,10 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private ReferenceHandler _referenceHandler;
     [SerializeField] private GameObject _umbrella;
     private GameManager _gameManagerScript;
-    private void Start() => _gameManagerScript = _referenceHandler.GetGameManagerReference();
+    private void Start()
+    {
+        _gameManagerScript = _referenceHandler.GetGameManagerReference();
+    }
     void Update()
     {
         if (!_gameManagerScript.GetIsGameOver())

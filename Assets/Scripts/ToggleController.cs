@@ -3,12 +3,10 @@ using UnityEngine.UI;
 
 public class ToggleController : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject _deactiveHandle, _activeHandle, _deactiveSlider, _activeSlider;
-    private Toggle _toggle;
-    private bool _activationState;
+    [SerializeField] private GameObject _deactiveHandle, _activeHandle, _deactiveSlider, _activeSlider;
+    public Toggle _toggle;
 
-    private void Start()
+    private void Awake()
     {
         _toggle = GetComponent<Toggle>();
     }
